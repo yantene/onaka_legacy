@@ -34,6 +34,29 @@ const drawLottery = (() => {
   }
 })()
 
+const getCurrentTime = () => Math.round(new Date().getTime() / 1000)
+
+const calcStamina = (lastDrawedAt, lastStamina, capacity, currentTime) => {
+  // 12 分で 1 スタミナが貯まる
+  const basicIncome = Math.floor((currentTime - lastDrawedAt) / (12 * 60))
+
+  // capacity を超えない分が現在の stamina
+  const stamina = Math.min(basicIncome + lastStamina, capacity)
+
+  // しかし減ることはない
+  return Math.max(lastStamina, stamina)
+}
+
+const getProgressBar = (val, max) => {
+  const chars = 30
+  const filled = Math.round(Math.min(val, max) * chars / max)
+  const empty = chars - filled
+  return `[${'#'.repeat(filled)}${'-'.repeat(empty)}] ${val}/${max}`
+}
+
+const cost = onakaSettings.cost
+const capacity = onakaSettings.capacity
+
 const onakaPattern = (() => {
   const onaka = '(おなか|お腹|オナカ|ｵﾅｶ|:onaka:)'
   const suisui = '(すいすい|:suisui:)'
@@ -43,32 +66,53 @@ const onakaPattern = (() => {
   return new RegExp(`(${onaka}\\s?((${suisui}|${ippai})\\s?)?[?？]|${shout}\\s?${onaka})`, 'i')
 })()
 
-const interval = onakaSettings.interval
-
 module.exports = robot => {
   robot.respond(onakaPattern, res => {
-    const currentTime = Math.round(new Date().getTime() / 1000)
-    const currentUserKey = `user:${res.message.user.id}`
-    const currentUser = robot.brain.get(currentUserKey) || { lastDrawedAt: -Infinity, collection: {} }
-    const elapsedTime = currentTime - currentUser.lastDrawedAt
+    const currentTime = getCurrentTime()
 
-    if (elapsedTime >= interval) {
-      // 前回の実行から interval 秒以上経過している場合
+    // ユーザ情報の引き出し
+    const currentUserKey = `user:${res.message.user.id}`
+    const currentUser = robot.brain.get(currentUserKey) || { lastDrawedAt: 0, lastStamina: 0, collection: {} }
+
+    // 現在のスタミナを計算
+    const stamina = calcStamina(currentUser.lastDrawedAt, currentUser.lastStamina || 0, capacity, currentTime)
+
+    if (stamina >= cost) {
+      currentUser.lastStamina = stamina - cost
+
       const [rarity, status] = drawLottery()
 
       currentUser.collection[rarity] = currentUser.collection[rarity] || {}
       currentUser.collection[rarity][status] = (currentUser.collection[rarity][status] || 0) + 1
+
       currentUser.lastDrawedAt = currentTime
+
       robot.brain.set(currentUserKey, currentUser)
 
       res.send(`*[${rarity}]* ${status}`)
     } else {
-      // 前回の実行から interval 秒以上経過していない場合
-      res.send(`:error: しつこい！！ :mitazo: :mitazo: :mitazo:\n(あと${(interval - elapsedTime)}秒待ってね)`)
+      res.send([
+        `:error: スタミナが足りません`,
+        `スタミナ ${getProgressBar(stamina, capacity)}`,
+        `(おなかうらないにはスタミナが${cost}必要です)`
+      ].join('\n'))
     }
   })
 
-  robot.respond(/コレクション/, res => {
+  robot.respond(/(スタミナ|stamina)/, res => {
+    const currentTime = getCurrentTime()
+
+    // ユーザ情報の引き出し
+    const currentUserKey = `user:${res.message.user.id}`
+    const currentUser = robot.brain.get(currentUserKey) || { lastDrawedAt: 0, lastStamina: 0, collection: {} }
+
+    // 現在のスタミナを計算
+    const stamina = calcStamina(currentUser.lastDrawedAt, currentUser.lastStamina || 0, capacity, currentTime)
+
+    res.send(getProgressBar(stamina, capacity))
+  })
+
+  robot.respond(/(コレクション|collection)/, res => {
     const currentUserKey = `user:${res.message.user.id}`
     const currentUser = robot.brain.get(currentUserKey)
 
