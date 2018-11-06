@@ -119,7 +119,7 @@ module.exports = robot => {
     const result = Object.entries(currentUser.collection || {})
       .sort((a, b) => onakaSettings.onakaStatuses[a[0]].freq - onakaSettings.onakaStatuses[b[0]].freq)
       .map(([rarity, cols]) => [
-        `*[${rarity}]*`,
+        `*[${rarity}]* (${Object.keys(cols).length}/${onakaSettings.onakaStatuses[rarity].statuses.length})`,
         Object.entries(cols).map(([status, num]) => `- ${status} ...... ${num}回`).join('\n')
       ].join('\n')).join('\n')
 
