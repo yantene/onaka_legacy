@@ -3,3 +3,4 @@ node_modules
 .hubot_history
 /tmp
 .envrc
+/onaka_settings.json
