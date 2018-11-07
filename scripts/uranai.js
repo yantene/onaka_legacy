@@ -68,6 +68,13 @@ const onakaPattern = (() => {
 
 module.exports = robot => {
   robot.respond(onakaPattern, res => {
+    res.send([
+      `"${res.match[1]}" is obsolete. Use "？"`,
+      `"${res.match[1]}" は廃止されました。 "？" をご使用ください。`
+    ].join('\n'))
+  })
+
+  robot.respond(/([？?])/, res => {
     const currentTime = getCurrentTime()
 
     // ユーザ情報の引き出し
