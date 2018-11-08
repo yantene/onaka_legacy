@@ -133,6 +133,57 @@ module.exports = robot => {
     res.send(result)
   })
 
+  robot.respond(/(チャレンジ|challenge)/, res => {
+    const currentTime = getCurrentTime()
+
+    // ユーザ情報の引き出し
+    const currentUserKey = `user:${res.message.user.id}`
+    const currentUser = robot.brain.get(currentUserKey) || { lastDrawedAt: 0, lastStamina: 0, collection: {} }
+
+    // 現在のスタミナを計算
+    const stamina = calcStamina(currentUser.lastDrawedAt, currentUser.lastStamina || 0, capacity, currentTime)
+
+    if (stamina >= cost * 2 / 3) {
+      (async () => {
+        res.send(`チャレンジを開始します。`)
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        res.send(`現在、あなたのスタミナは${stamina}です。`)
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        res.send(`チャレンジでは、1/2 の確率でスタミナが倍になります。`)
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        res.send(`しかし、そうでない場合にはスタミナが 0 になります。`)
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        res.send(`もうキャンセルは許されません。`)
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        res.send(`あなたのスタミナは・・・`)
+        await new Promise(resolve => setTimeout(resolve, 8000))
+
+        if (Math.random() < 0.5) {
+          currentUser.lastStamina = stamina * 2
+          res.send([
+            `${stamina * 2} になりました。`,
+            `おめでとうございます！`
+          ].join('\n'))
+        } else {
+          currentUser.lastStamina = 0
+          res.send([
+            `0 になりました。`,
+            `残念でした。`
+          ].join('\n'))
+        }
+
+        currentUser.lastDrawedAt = currentTime
+        robot.brain.set(currentUserKey, currentUser)
+      })()
+    } else {
+      res.send([
+        `:error: スタミナが足りません`,
+        `スタミナ ${getProgressBar(stamina, capacity)}`,
+        `(チャレンジにはスタミナが${cost * 2 / 3}以上必要です)`
+      ].join('\n'))
+    }
+  })
+
   robot.respond(/(ヘルプ|help)/, res => {
     res.send([
       `*@おなか ヘルプ*`,
