@@ -48,10 +48,10 @@ const calcStamina = (lastDrawedAt, lastStamina, capacity, currentTime) => {
 }
 
 const getProgressBar = (val, max) => {
-  const chars = 30
+  const chars = 60
   const filled = Math.round(Math.min(val, max) * chars / max)
   const empty = chars - filled
-  return `[${'#'.repeat(filled)}${'-'.repeat(empty)}] ${val}/${max}`
+  return `[${'|'.repeat(filled)}${'.'.repeat(empty)}] ${val}/${max}`
 }
 
 const cost = onakaSettings.cost
@@ -74,7 +74,7 @@ module.exports = robot => {
     ].join('\n'))
   })
 
-  robot.respond(/([？?])/, res => {
+  robot.respond(/((すいすい|いっぱい|おなか)?[？?])/, res => {
     const currentTime = getCurrentTime()
 
     // ユーザ情報の引き出し
