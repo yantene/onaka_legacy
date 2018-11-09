@@ -1,0 +1,19 @@
+redis:
+  restart: always
+  image: redis:latest
+  command: redis-server --appendonly yes
+  volumes:
+    - ./data:/data
+
+hubot:
+  restart: always
+  build: .
+  ports:
+    - '8190:8080'
+  env_file:
+    - app.env
+  environment:
+    REDIS_URL: redis://redis:6379
+    TZ: Asia/Tokyo
+  links:
+    - redis
