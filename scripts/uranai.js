@@ -57,23 +57,7 @@ const getProgressBar = (val, max) => {
 const cost = onakaSettings.cost
 const capacity = onakaSettings.capacity
 
-const onakaPattern = (() => {
-  const onaka = '(おなか|お腹|オナカ|ｵﾅｶ|:onaka:)'
-  const suisui = '(すいすい|:suisui:)'
-  const ippai = '(いっぱい|:ippai:)'
-  const shout = '(ねえ|へい|ヘイ|オ[ッー]ケー|ok|okay)'
-
-  return new RegExp(`(${onaka}\\s?((${suisui}|${ippai})\\s?)?[?？]|${shout}\\s?${onaka})`, 'i')
-})()
-
 module.exports = robot => {
-  robot.respond(onakaPattern, res => {
-    res.send([
-      `"${res.match[1]}" is obsolete. Use "？"`,
-      `"${res.match[1]}" は廃止されました。 "？" をご使用ください。`
-    ].join('\n'))
-  })
-
   robot.respond(/((すいすい|いっぱい|おなか)?[？?])/, res => {
     const currentTime = getCurrentTime()
 
