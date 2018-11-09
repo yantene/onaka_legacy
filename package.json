@@ -6,7 +6,6 @@
   "description": "Your stomach's prophet.",
   "dependencies": {
     "hubot": "^3.1.1",
-    "hubot-help": "^1.0.1",
     "hubot-redis-brain": "^1.0.0",
     "hubot-scripts": "^2.17.2",
     "hubot-slack": "^4.5.5",
