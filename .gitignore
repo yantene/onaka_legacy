@@ -4,4 +4,5 @@ node_modules
 /tmp
 .envrc
 /onaka_settings.json
-app.env
+/app.env
+/data
