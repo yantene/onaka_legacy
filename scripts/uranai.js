@@ -55,7 +55,7 @@ const getProgressBar = (val, max) => {
 }
 
 const cost = onakaSettings.cost
-const capacity = onakaSettings.capacity
+const defaultCapacity = onakaSettings.defaultCapacity
 
 module.exports = robot => {
   robot.respond(/((すいすい|いっぱい|おなか)?[？?])/, res => {
@@ -63,10 +63,10 @@ module.exports = robot => {
 
     // ユーザ情報の引き出し
     const currentUserKey = `user:${res.message.user.id}`
-    const currentUser = robot.brain.get(currentUserKey) || { lastDrawedAt: 0, lastStamina: 0, collection: {} }
+    const currentUser = robot.brain.get(currentUserKey) || { lastDrawedAt: 0, lastStamina: 0, capacity: defaultCapacity, collection: {} }
 
     // 現在のスタミナを計算
-    const stamina = calcStamina(currentUser.lastDrawedAt, currentUser.lastStamina || 0, capacity, currentTime)
+    const stamina = calcStamina(currentUser.lastDrawedAt, currentUser.lastStamina || 0, currentUser.capacity || defaultCapacity, currentTime)
 
     if (stamina >= cost) {
       currentUser.lastStamina = stamina - cost
@@ -84,7 +84,7 @@ module.exports = robot => {
     } else {
       res.send([
         `:error: スタミナが足りません`,
-        `スタミナ ${getProgressBar(stamina, capacity)}`,
+        `スタミナ ${getProgressBar(stamina, currentUser.capacity || defaultCapacity)}`,
         `(おなかうらないにはスタミナが${cost}必要です)`
       ].join('\n'))
     }
@@ -95,12 +95,12 @@ module.exports = robot => {
 
     // ユーザ情報の引き出し
     const currentUserKey = `user:${res.message.user.id}`
-    const currentUser = robot.brain.get(currentUserKey) || { lastDrawedAt: 0, lastStamina: 0, collection: {} }
+    const currentUser = robot.brain.get(currentUserKey) || { lastDrawedAt: 0, lastStamina: 0, capacity: defaultCapacity, collection: {} }
 
     // 現在のスタミナを計算
-    const stamina = calcStamina(currentUser.lastDrawedAt, currentUser.lastStamina || 0, capacity, currentTime)
+    const stamina = calcStamina(currentUser.lastDrawedAt, currentUser.lastStamina || 0, currentUser.capacity || defaultCapacity, currentTime)
 
-    res.send(getProgressBar(stamina, capacity))
+    res.send(getProgressBar(stamina, currentUser.capacity || defaultCapacity))
   })
 
   robot.respond(/(コレクション|collection)/, res => {
@@ -125,7 +125,7 @@ module.exports = robot => {
     const currentUser = robot.brain.get(currentUserKey) || { lastDrawedAt: 0, lastStamina: 0, collection: {} }
 
     // 現在のスタミナを計算
-    const stamina = calcStamina(currentUser.lastDrawedAt, currentUser.lastStamina || 0, capacity, currentTime)
+    const stamina = calcStamina(currentUser.lastDrawedAt, currentUser.lastStamina || 0, currentUser.capacity || defaultCapacity, currentTime)
 
     if (stamina >= cost * 2 / 3) {
       (async () => {
@@ -162,7 +162,7 @@ module.exports = robot => {
     } else {
       res.send([
         `:error: スタミナが足りません`,
-        `スタミナ ${getProgressBar(stamina, capacity)}`,
+        `スタミナ ${getProgressBar(stamina, currentUser.capacity || defaultCapacity)}`,
         `(チャレンジにはスタミナが${cost * 2 / 3}以上必要です)`
       ].join('\n'))
     }
