@@ -80,7 +80,7 @@ module.exports = robot => {
 
       robot.brain.set(currentUserKey, currentUser)
 
-      res.send(`*[${rarity}]* ${status}`)
+      res.send(`*[${rarity}]* ${status}${currentUser.collection[rarity][status] === 1 ? '      :new:' : ''}`)
     } else {
       res.send([
         `:error: スタミナが足りません`,
