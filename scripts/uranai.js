@@ -89,7 +89,7 @@ module.exports = robot => {
     }
   }
 
-  robot.respond(/((すいすい|いっぱい|おなか)?[？?])/, res => {
+  robot.respond(/([？?])/, res => {
     const currentUser = new User(res.message.user.id)
 
     if (currentUser.stamina() >= cost) {
