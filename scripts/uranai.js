@@ -89,7 +89,7 @@ module.exports = robot => {
     }
   }
 
-  robot.respond(/([？?])/, res => {
+  robot.respond(/([？?])$/, res => {
     const currentUser = new User(res.message.user.id)
 
     if (currentUser.stamina() >= cost) {
@@ -108,13 +108,13 @@ module.exports = robot => {
     }
   })
 
-  robot.respond(/(スタミナ|stamina)/, res => {
+  robot.respond(/(スタミナ|stamina)$/, res => {
     const currentUser = new User(res.message.user.id)
 
     res.send(getProgressBar(currentUser.stamina(), currentUser.capacity))
   })
 
-  robot.respond(/(コレクション|collection)/, res => {
+  robot.respond(/(コレクション|collection)$/, res => {
     const currentUser = new User(res.message.user.id)
 
     const result = Object.entries(currentUser.collection || {})
@@ -127,7 +127,7 @@ module.exports = robot => {
     res.send(result)
   })
 
-  robot.respond(/(チャレンジ|challenge)/, res => {
+  robot.respond(/(チャレンジ|challenge)$/, res => {
     const currentUser = new User(res.message.user.id)
     const currentStamina = currentUser.stamina()
 
@@ -172,7 +172,7 @@ module.exports = robot => {
     }
   })
 
-  robot.respond(/(ヘルプ|help)/, res => {
+  robot.respond(/(ヘルプ|help)$/, res => {
     res.send([
       `*onaka ヘルプ*`,
       `*onaka help*`,
