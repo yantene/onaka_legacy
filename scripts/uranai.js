@@ -89,21 +89,33 @@ module.exports = robot => {
     }
   }
 
-  robot.respond(/([？?])$/, res => {
+  robot.respond(/([？?]+)$/, res => {
+    const times = res.match[1].length
     const currentUser = new User(res.message.user.id)
 
-    if (currentUser.stamina() >= cost) {
-      currentUser.increaseStamina(-cost)
-      const [rarity, status] = drawLottery()
-      currentUser.addOnakaStatus(rarity, status)
-      currentUser.save()
+    if (currentUser.stamina() >= cost * times) {
+      currentUser.increaseStamina(-cost * times)
 
-      res.send(`*[${rarity}]* ${status}${currentUser.collection[rarity][status] === 1 ? '      :new:' : ''}`)
+      // draw and save
+      let statuses = []
+      for (let i = times; i > 0; --i) {
+        const [rarity, status] = drawLottery()
+        currentUser.addOnakaStatus(rarity, status)
+        statuses.push([rarity, status, currentUser.collection[rarity][status] === 1])
+      }
+      currentUser.save();
+
+      (async () => {
+        for (let [rarity, status, isNew] of statuses) {
+          res.send(`*[${rarity}]* ${status}${isNew ? '      :new:' : ''}`)
+          await new Promise(resolve => setTimeout(resolve, 2000))
+        }
+      })()
     } else {
       res.send([
         `:error: スタミナが足りません`,
         `スタミナ ${getProgressBar(currentUser.stamina(), currentUser.capacity)}`,
-        `(おなかうらないにはスタミナが${cost}必要です)`
+        `(おなかうらないを${times}回するにはスタミナが${cost * times}必要です)`
       ].join('\n'))
     }
   })
@@ -182,6 +194,7 @@ module.exports = robot => {
       `*onaka ?*`,
       `    おなかうらないをします。`,
       `    1回15スタミナを消費します。`,
+      `    疑問符を複数連続させることで、その数だけうらなうことができます。`,
       ``,
       `*onaka スタミナ*`,
       `*onaka stamina*`,
