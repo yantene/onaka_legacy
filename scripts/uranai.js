@@ -47,6 +47,7 @@ module.exports = robot => {
       this.userKey = `user:${userId}`
 
       const userObject = robot.brain.get(this.userKey) || {}
+      this.userId = userObject.userId || userId
       this.lastDrawedAt = userObject.lastDrawedAt || 0
       this.lastStamina = userObject.lastStamina || 0
       this.capacity = userObject.capacity || defaultCapacity
@@ -57,11 +58,15 @@ module.exports = robot => {
 
     save () {
       robot.brain.set(this.userKey, {
+        userId: this.userId,
         lastDrawedAt: this.lastDrawedAt,
         lastStamina: this.lastStamina,
         capacity: this.capacity,
         collection: this.collection
       })
+
+      const ranking = new Ranking()
+      ranking.update(this.userId, this.score())
     }
 
     stamina () {
@@ -75,6 +80,15 @@ module.exports = robot => {
       return Math.max(this.lastStamina, stamina)
     }
 
+    score () {
+      return Math.floor(Object.entries(this.collection).map(([rarity, statuses]) => {
+        const count = Object.entries(statuses).map(([_, cnt]) => cnt).reduce((a, b) => a + b)
+        const unitScore = 1024 / onakaStatuses[rarity].freq
+
+        return count * unitScore
+      }).reduce((a, b) => a + b))
+    }
+
     // スタミナを増減させる
     // softInc: 0〜capacityの間の増減分
     // hardInc: 制限なしの増減分
@@ -86,6 +100,39 @@ module.exports = robot => {
     addOnakaStatus (rarity, status) {
       this.collection[rarity] = this.collection[rarity] || {}
       this.collection[rarity][status] = (this.collection[rarity][status] || 0) + 1
+    }
+  }
+
+  class Ranking {
+    constructor () {
+      this.ranking = robot.brain.get('ranking') || {}
+    }
+
+    update (userId, score) {
+      this.ranking[userId] = score
+      robot.brain.set('ranking', this.ranking)
+    }
+
+    getRank (userId) {
+      const score = this.ranking[userId]
+
+      if (score === undefined) {
+        const currentUser = new User(userId)
+        this.update(userId, currentUser.score())
+        return this.getRank(userId)
+      }
+
+      let rank = 1
+      Object.entries(this.ranking).forEach(([_, otherScore]) => {
+        if (score < otherScore) {
+          rank += 1
+        }
+      })
+      return rank
+    }
+
+    numberOfParticipants () {
+      return Object.entries(this.ranking).length
     }
   }
 
@@ -123,7 +170,7 @@ module.exports = robot => {
   robot.respond(/(スタミナ|stamina)$/, res => {
     const currentUser = new User(res.message.user.id)
 
-    res.send(getProgressBar(currentUser.stamina(), currentUser.capacity))
+    res.send(`Stamina: ${getProgressBar(currentUser.stamina(), currentUser.capacity)}`)
   })
 
   robot.respond(/(コレクション|collection)$/, res => {
@@ -137,6 +184,13 @@ module.exports = robot => {
       ].join('\n')).join('\n\n')
 
     res.send(result)
+  })
+
+  robot.respond(/(スコア|score)$/, res => {
+    const currentUser = new User(res.message.user.id)
+    const ranking = new Ranking()
+
+    res.send(`Score: ${currentUser.score()}pts ${ranking.getRank(currentUser.userId)}位 (${ranking.numberOfParticipants()}人中)`)
   })
 
   robot.respond(/(チャレンジ|challenge)$/, res => {
@@ -196,20 +250,26 @@ module.exports = robot => {
       `    1回15スタミナを消費します。`,
       `    疑問符を複数連続させることで、その数だけうらなうことができます。`,
       ``,
-      `*onaka スタミナ*`,
-      `*onaka stamina*`,
-      `    現在のスタミナを表示します。`,
-      `    スタミナは12分に1回復します。`,
-      ``,
       `*onaka チャレンジ*`,
       `*onaka challenge*`,
       `    スタミナを賭けて博打をおこないます。`,
       `    チャレンジにはスタミナが${cost * 2 / 3}以上必要です。`,
       `    なお本機能の利用は非推奨です。`,
       ``,
+      `*onaka スタミナ*`,
+      `*onaka stamina*`,
+      `    現在のスタミナを表示します。`,
+      `    スタミナは12分に1回復します。`,
+      ``,
       `*onaka コレクション*`,
       `*onaka collection*`,
-      `    現在までに取得したおなかステータスのコレクションを表示します。`
+      `    現在までに取得したおなかステータスのコレクションを表示します。`,
+      ``,
+      `*onaka スコア*`,
+      `*onaka score*`,
+      `    コレクションによって決定されるスコアを表示します。`,
+      `    試験実装のため不安定である恐れがあります。`,
+      ``
     ].join('\n'))
   })
 }
