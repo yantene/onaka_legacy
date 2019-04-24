@@ -1,0 +1,99 @@
+{
+ "cost": 15,
+ "defaultCapacity": 60,
+ "onakaStatuses": {
+   "N": {
+     "freq": 64,
+     "statuses": [
+       ":onaka: :yowaso:",
+       ":onaka: :tsurami:",
+       ":onaka: :turai:",
+       ":onaka: :kayui:",
+       ":onaka: :wbt50:",
+       ":onaka: :murisezu:",
+       ":onaka: :gabi-n:",
+       ":onaka: :rimu:"
+     ]
+   },
+   "R": {
+     "freq": 32,
+     "statuses": [
+       ":onaka: :suisui:",
+       ":onaka: :ippai:",
+       ":onaka: :wbt0:",
+       ":onaka: :wbt100:",
+       ":onaka: :yoshi:",
+       ":onaka: :konwaku:",
+       ":onaka: :hokkori:",
+       ":onaka: :u7a7a:"
+     ]
+   },
+   "SR": {
+     "freq": 16,
+     "statuses": [
+       ":onaka: :tsuyosou:",
+       ":onaka: :urusai:",
+       ":onaka: :erait:",
+       ":onaka: :deta:",
+       ":onaka: :rikaishita:",
+       ":onaka: :emoi:",
+       ":kyomoasakara: :onaka: :suisui:",
+       ":kyomoasakara: :onaka: :ippai:",
+       ":onaka: :u6e80:"
+     ]
+   },
+   "SSR": {
+     "freq": 8,
+     "statuses": [
+       ":onaka: :detadeta:",
+       ":onaka: :odaijini:",
+       ":onaka: :totemotsurai:",
+       ":onaka: :yabatanien:",
+       ":onaka: :dekasita:",
+       ":onaka: :ochitsuke:",
+       ":onaka: :hakkyou:",
+       ":onaka: :anshin:",
+       ":onaka: :aa:",
+       ":kyomokyotote: :onaka: :suisui:",
+       ":kyomokyotote: :onaka: :ippai:",
+       ":onaka: :u55b6:"
+     ]
+   },
+   "HR": {
+     "freq": 4,
+     "statuses": [
+       ":onaka: :suisui: :no: :mezame:",
+       ":onaka: :suisui: :no: :mebae:",
+       ":onaka: :suisui: :no: :homare:",
+       ":onaka: :suisui: :no: :yume:",
+       ":onaka: :suisui: :no: :ayamachi:",
+       ":onaka: :suisui: :no: :kan:",
+       ":onaka: :suisui: :no: :congratulations:"
+     ]
+   },
+   "UR": {
+     "freq": 2,
+     "statuses": [
+       ":onaka: :suisui: :no: :kaname:",
+       ":onaka: :suisui: :no: :satori:",
+       ":onaka: :suisui: :no: :nazo:",
+       ":onaka: :suisui: :no: :secret:",
+       ":onaka: :suisui: :no: :uso:",
+       ":onaka: :suisui: :no: :kanashimi:",
+       ":onaka: :suisui: :no: :u7981:"
+     ]
+   },
+   "KIWAMI": {
+     "freq": 1,
+     "statuses": [
+       ":onaka: :suisui: :no: :kiwami:"
+     ]
+   },
+   "OWARI": {
+     "freq": 1,
+     "statuses": [
+       ":onaka: :suisui: :no: :owari:"
+     ]
+   }
+ }
+}
