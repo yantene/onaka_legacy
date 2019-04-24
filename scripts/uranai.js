@@ -209,7 +209,7 @@ module.exports = robot => {
         currentUser.increaseStamina(0, -currentUser.stamina)
         result = [
           `0 になりました。`,
-          `残念でした。`
+          `残念でした。^p^`
         ].join('\n')
       }
       currentUser.save();
@@ -221,9 +221,7 @@ module.exports = robot => {
         await new Promise(resolve => setTimeout(resolve, 2000))
         res.send(`チャレンジでは、1/2 の確率でスタミナが倍になります。`)
         await new Promise(resolve => setTimeout(resolve, 2000))
-        res.send(`しかし、そうでない場合にはスタミナが 0 になります。`)
-        await new Promise(resolve => setTimeout(resolve, 2000))
-        res.send(`もうキャンセルは許されません。`)
+        res.send(`チャレンジに失敗するとスタミナが 0 になります。`)
         await new Promise(resolve => setTimeout(resolve, 2000))
         res.send(`あなたのスタミナは・・・`)
         await new Promise(resolve => setTimeout(resolve, 8000))
@@ -268,7 +266,6 @@ module.exports = robot => {
       `*onaka スコア*`,
       `*onaka score*`,
       `    コレクションによって決定されるスコアを表示します。`,
-      `    試験実装のため不安定である恐れがあります。`,
       ``
     ].join('\n'))
   })
