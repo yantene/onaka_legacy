@@ -5,6 +5,7 @@ const onakaSettings = require('../onaka_settings.json')
 
 const onakaStatuses = onakaSettings.onakaStatuses
 const cost = onakaSettings.cost
+const dryRunCost = onakaSettings.dryRunCost
 const defaultCapacity = onakaSettings.defaultCapacity
 
 const drawLottery = () => {
@@ -163,6 +164,24 @@ module.exports = robot => {
         `:error: スタミナが足りません`,
         `スタミナ ${getProgressBar(currentUser.stamina(), currentUser.capacity)}`,
         `(おなかうらないを${times}回するにはスタミナが${cost * times}必要です)`
+      ].join('\n'))
+    }
+  })
+
+  robot.respond(/(お試し|dry-?run|dry)$/, res => {
+    const currentUser = new User(res.message.user.id)
+
+    if (currentUser.stamina() >= dryRunCost) {
+      // draw, but don't save
+      const [rarity, status] = drawLottery()
+      res.send(`*[${rarity}]* ${status}      *(お試し)*`)
+      currentUser.increaseStamina(-dryRunCost)
+      currentUser.save()
+    } else {
+      res.send([
+        `:error: スタミナが足りません`,
+        `スタミナ ${getProgressBar(currentUser.stamina(), currentUser.capacity)}`,
+        `(お試しおなかうらないをするにはスタミナが${dryRunCost}必要です)`
       ].join('\n'))
     }
   })
