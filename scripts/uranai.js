@@ -216,9 +216,9 @@ module.exports = robot => {
     const currentUser = new User(res.message.user.id)
     const currentStamina = currentUser.stamina()
 
-    if (currentStamina >= cost * 2 / 3) {
+    if (currentStamina >= 1) {
       let result = null
-      if (Math.random() < 0.5) {
+      if (Math.random() < Math.min(0.5, currentStamina * 3 / (cost * 4))) {
         currentUser.increaseStamina(0, currentStamina)
         result = [
           `${currentStamina * 2} になりました。`,
@@ -238,7 +238,7 @@ module.exports = robot => {
         await new Promise(resolve => setTimeout(resolve, 2000))
         res.send(`現在、あなたのスタミナは${currentStamina}です。`)
         await new Promise(resolve => setTimeout(resolve, 2000))
-        res.send(`チャレンジでは、1/2 の確率でスタミナが倍になります。`)
+        res.send(`今回のチャレンジでは、${Math.round(Math.min(0.5, currentStamina * 3 / (cost * 4)) * 100)}% の確率でスタミナが倍になります。`)
         await new Promise(resolve => setTimeout(resolve, 2000))
         res.send(`チャレンジに失敗するとスタミナが 0 になります。`)
         await new Promise(resolve => setTimeout(resolve, 2000))
@@ -250,7 +250,7 @@ module.exports = robot => {
       res.send([
         `:error: スタミナが足りません`,
         `スタミナ ${getProgressBar(currentStamina, currentUser.capacity)}`,
-        `(チャレンジにはスタミナが${cost * 2 / 3}以上必要です)`
+        `(チャレンジにはスタミナが1以上必要です)`
       ].join('\n'))
     }
   })
@@ -270,7 +270,7 @@ module.exports = robot => {
       `*onaka チャレンジ*`,
       `*onaka challenge*`,
       `    スタミナを賭けて博打をおこないます。`,
-      `    チャレンジにはスタミナが${cost * 2 / 3}以上必要です。`,
+      `    チャレンジにはスタミナが1以上必要です。`,
       `    なお本機能の利用は非推奨です。`,
       ``,
       `*onaka スタミナ*`,
