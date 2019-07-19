@@ -212,16 +212,23 @@ module.exports = robot => {
     res.send(`Score: ${currentUser.score()}pts ${ranking.getRank(currentUser.userId)}位 (${ranking.numberOfParticipants()}人中)`)
   })
 
-  robot.respond(/(チャレンジ|challenge)$/, res => {
+  robot.respond(/(チャレンジ|challenge) ?([0-9]+)?$/, res => {
     const currentUser = new User(res.message.user.id)
     const currentStamina = currentUser.stamina()
+    const target = parseInt(res.match[2] || currentStamina * 2)
 
-    if (currentStamina >= 1) {
+    const prob = currentStamina / target
+
+    if (currentStamina >= target) {
+      res.send([
+        `引数には現在のスタミナより大きな整数をご指定ください。`
+      ].join('\n'))
+    } else if (currentStamina >= 1) {
       let result = null
-      if (Math.random() < Math.min(0.5, currentStamina * 3 / (cost * 4))) {
-        currentUser.increaseStamina(0, currentStamina)
+      if (Math.random() < prob) {
+        currentUser.increaseStamina(0, target - currentStamina)
         result = [
-          `${currentStamina * 2} になりました。`,
+          `${target} になりました。`,
           `おめでとうございます！`
         ].join('\n')
       } else {
@@ -238,7 +245,7 @@ module.exports = robot => {
         await new Promise(resolve => setTimeout(resolve, 2000))
         res.send(`現在、あなたのスタミナは${currentStamina}です。`)
         await new Promise(resolve => setTimeout(resolve, 2000))
-        res.send(`今回のチャレンジでは、${Math.round(Math.min(0.5, currentStamina * 3 / (cost * 4)) * 100)}% の確率でスタミナが倍になります。`)
+        res.send(`今回のチャレンジでは、${Math.round(prob * 100)}% の確率でスタミナが ${target} になります。`)
         await new Promise(resolve => setTimeout(resolve, 2000))
         res.send(`チャレンジに失敗するとスタミナが 0 になります。`)
         await new Promise(resolve => setTimeout(resolve, 2000))
